@@ -2,13 +2,17 @@ from telnetlib import LOGOUT
 import pygame
 import button
 pygame.init()
+winner = ""
+gameOver = False
+menuSelect = 0
+overSelect = 0
 ballx = 615
 bally = 340
 ballvelocityx = -2
 ballvelocityy = 1
 hit = 0
 left_score = 0
-right_score = 10
+right_score = 9
 scoreFont = pygame.font.SysFont("Times New Roman", 75)
 menuFont = pygame.font.SysFont("Times New Roman", 200)
 white = (255,255,255)
@@ -49,12 +53,18 @@ def draw_gameoverscreen():
 def draw_menuscreen():
     screen.fill((20,150,230))
     screen.blit(scoreFont.render("Welcome to Pong.py", 0, white),(270,80))
-    startButton = button.Button(5,230,600,60,white, "                         Start", (20,150,230))
-    startButton.draw(screen)
-    quitButton = button.Button(610,230,615,60,white,"                         Quit",(20,150,230))
-    quitButton.draw(screen)
     screen.blit(logo, (420,300))
-
+    if menuSelect == 0:
+        startButton = button.Button(5,230,600,60,black, "                       Start", (20,150,230))
+        startButton.draw(screen)
+        quitButton = button.Button(610,230,615,60,white,"                       Quit",(20,150,230))
+        quitButton.draw(screen)
+    elif menuSelect ==1:
+        startButton = button.Button(5,230,600,60,white, "                       Start", (20,150,230))
+        startButton.draw(screen)
+        quitButton = button.Button(610,230,615,60,black,"                       Quit",(20,150,230))
+        quitButton.draw(screen)
+    
 def draw_themescreen():
     screen.fill((20,150,230))
     screen.blit(scoreFont.render("Choose a theme", 0, white),(330,80))
@@ -93,10 +103,30 @@ base2_x = 1170
 base2_y = 280
 
 while True:
-
+    while gameOver:
+        draw_gameoverscreen()
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    menuScreen = True
+                    gameOver = False
+                    left_score = 0
+                    right_score = 0
     while menuScreen:
         draw_menuscreen()
         clock.tick(60)         # wait until next frame (at 60 FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RIGHT:
+                    menuSelect = 1
+                if event.key == pygame.K_LEFT:
+                    menuSelect = 0
+                if event.key == pygame.K_RETURN:
+                    if menuSelect == 0:
+                        menuScreen = False
+                        
+                    else:
+                        exit()
         pygame.display.flip()  # Refresh on-screen display
     # Process player inputs.
     ballx += ballvelocityx
@@ -121,19 +151,11 @@ while True:
     right_score_label = scoreFont.render(str(right_score), 0, (255,255,255))
 
     if left_score == 10:
-        while True:
-            winner = "Left Side"
-            draw_gameoverscreen()
-            clock.tick(60)         # wait until next frame (at 60 FPS)
-            pygame.display.flip()  # Refresh on-screen display
-
+        winner = "Left Side!"
+        gameOver = True
     if right_score == 10:
-        while True:
-            winner = "Right Side"
-            draw_gameoverscreen()
-            clock.tick(60)         # wait until next frame (at 60 FPS)
-            pygame.display.flip()  # Refresh on-screen display
-
+        winner = "Right Side!"
+        gameOver = True
 
     if hit >= 5:
         ballvelocityx += 5
