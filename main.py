@@ -12,7 +12,7 @@ ballvelocityx = -2
 ballvelocityy = 1
 hit = 0
 left_score = 0
-right_score = 9
+right_score = 8
 scoreFont = pygame.font.SysFont("Times New Roman", 75)
 menuFont = pygame.font.SysFont("Times New Roman", 200)
 white = (255,255,255)
@@ -43,12 +43,14 @@ def draw_gamescreen():
     pygame.draw.rect(screen, "black", (0,670,1230,10))
     pygame.draw.rect(screen,"red",(0,10,10,660))
     pygame.draw.rect(screen,"red",(1220,10,10,660))
+    pygame.display.flip()
 def draw_gameoverscreen():
     screen.fill((255,35,50))
     screen.blit(scoreFont.render("Game Over!", 0, (255,255,255)), (435,80))
     screen.blit(scoreFont.render("Winner: "+winner, 0, (255,255,255)),(340,250))
     tryAgainButton = button.Button(560,400,140,60, white, "Home", black)
     tryAgainButton.draw(screen)
+    pygame.display.flip()
    ##pygame.draw.rect(screen, "white", (560,400, 140, 60))
 def draw_menuscreen():
     screen.fill((20,150,230))
@@ -64,11 +66,13 @@ def draw_menuscreen():
         startButton.draw(screen)
         quitButton = button.Button(610,230,615,60,black,"                       Quit",(20,150,230))
         quitButton.draw(screen)
-    
+    pygame.display.flip()
+
 def draw_themescreen():
     screen.fill((20,150,230))
     screen.blit(scoreFont.render("Choose a theme", 0, white),(330,80))
-
+    pygame.display.flip()
+    
 pygame.display.set_caption('Pong')
 screen = pygame.display.set_mode((1230,680))
 
@@ -103,6 +107,7 @@ base2_x = 1170
 base2_y = 280
 
 while True:
+    pressed=pygame.key.get_pressed()
     while gameOver:
         draw_gameoverscreen()
         for event in pygame.event.get():
@@ -195,7 +200,6 @@ while True:
         ballvelocityy += 5
 
     if ((ballx >= base_x and ballx <= base_x + 60) and (bally >= base_y and bally <= base_y+256)) or ((ballx >= base2_x-20 and ballx <= base2_x + 40) and (bally >= base2_y and bally <= base2_y+256)):
-        
         ballvelocityx = -ballvelocityx
         hit += 1
     
@@ -203,18 +207,18 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             raise SystemExit
-        
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_w:
-                base_y -= 50
-            if event.key == pygame.K_s:
-                base_y += 50
 
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP:
-                base2_y -= 50
-            if event.key == pygame.K_DOWN:
-                base2_y += 50
+ ############Controls       
+        if pressed[pygame.K_w] and base_y > 40:
+            base_y -= 50
+
+        if pressed[pygame.K_s] and base_y < 535:
+            base_y += 50
+
+        if pressed[pygame.K_UP] and base2_y > 40:
+            base2_y -= 50
+        if pressed[pygame.K_DOWN] and base2_y < 535:
+            base2_y += 50
 
     # Do logical updates here.
     # ...
