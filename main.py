@@ -2,8 +2,11 @@ from telnetlib import LOGOUT
 import pygame
 import button
 pygame.init()
+twoPlayers = False
+running = True
 winner = ""
 gameOver = False
+settingScreen = False             
 menuSelect = 0
 overSelect = 0
 ballx = 615
@@ -21,6 +24,9 @@ red = (255,0,0)
 green = (0,255,0)
 blue = (0,0,255)
 menuScreen = True
+
+blip = pygame.mixer.Sound("blip.wav")
+confirmBlip = pygame.mixer.Sound("confirm.wav")
 
 # Show the bases that the players will be moving around
 def draw_gamescreen():
@@ -68,7 +74,7 @@ def draw_menuscreen():
         quitButton.draw(screen)
     pygame.display.flip()
 
-def draw_themescreen():
+def draw_settingScreen():
     screen.fill((20,150,230))
     screen.blit(scoreFont.render("Choose a theme", 0, white),(330,80))
     pygame.display.flip()
@@ -106,8 +112,10 @@ base_y = 280
 base2_x = 1170
 base2_y = 280
 
-while True:
+while running:
+    
     pressed=pygame.key.get_pressed()
+    pygame.key.set_repeat()
     while gameOver:
         draw_gameoverscreen()
         for event in pygame.event.get():
@@ -117,22 +125,32 @@ while True:
                     gameOver = False
                     left_score = 0
                     right_score = 0
+                    
     while menuScreen:
         draw_menuscreen()
         clock.tick(60)         # wait until next frame (at 60 FPS)
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
+                    blip.play()
                     menuSelect = 1
                 if event.key == pygame.K_LEFT:
+                    blip.play()
                     menuSelect = 0
                 if event.key == pygame.K_RETURN:
+                    confirmBlip.play()
                     if menuSelect == 0:
                         menuScreen = False
+                        settingScreen = False
                         
                     else:
                         exit()
+
+    while settingScreen:
+        draw_settingScreen()               
+
         pygame.display.flip()  # Refresh on-screen display
+    pygame.key.set_repeat(1,1)    
     # Process player inputs.
     ballx += ballvelocityx
     bally += ballvelocityy
@@ -162,42 +180,43 @@ while True:
         winner = "Right Side!"
         gameOver = True
 
-    if hit >= 5:
-        ballvelocityx += 5
-        ballvelocityy += 5
-    if hit >= 10:
-        ballvelocityx += 0.5
-        ballvelocityy += 0.5
-    if hit >= 15:
-        ballvelocityx += 0.5
-        ballvelocityy += 0.5
-    if hit >= 20:
-        ballvelocityx += 0.5
-        ballvelocityy += 0.5
-    if hit >= 25:
-        ballvelocityx += 0.5
-        ballvelocityy += 0.5
-    if hit >= 30:
-        ballvelocityx += 0.5
-        ballvelocityy += 0.5
-    if hit >= 35:
-        ballvelocityx += 0.5
-        ballvelocityy += 0.5
-    if hit >= 40:
-        ballvelocityx += 0.5
-        ballvelocityy += 0.5
-    if hit >= 45:
-        ballvelocityx += 0.5
-        ballvelocityy += 0.5
-    if hit >= 50:
-        ballvelocityx += 0.5
-        ballvelocityy += 0.5
-    if hit >= 75:
-        ballvelocityx += 2.5
-        ballvelocityy += 2.5
-    if hit >= 100:
-        ballvelocityx += 5
-        ballvelocityy += 5
+#    if hit >= 5:
+ #       ballvelocityx += 5
+  #      ballvelocityy += 5
+   # if hit >= 10:
+    #    ballvelocityx += 0.5
+#        ballvelocityy += 0.5
+ #   if hit >= 15:
+  #      ballvelocityx += 0.5
+   #     ballvelocityy += 0.5
+#    if hit >= 20:
+ #       ballvelocityx += 0.5
+  #      ballvelocityy += 0.5
+   # if hit >= 25:
+#
+#        ballvelocityx += 0.5
+ #       ballvelocityy += 0.5
+  #  if hit >= 30:
+   #     ballvelocityx += 0.5
+    #    ballvelocityy += 0.5
+#    if hit >= 35:
+ #       ballvelocityx += 0.5
+  #      ballvelocityy += 0.5
+   # if hit >= 40:
+#        ballvelocityx += 0.5
+ #       ballvelocityy += 0.5
+  #  if hit >= 45:
+   #     ballvelocityx += 0.5
+#        ballvelocityy += 0.5
+ #   if hit >= 50:
+  #      ballvelocityx += 0.5
+   #     ballvelocityy += 0.5
+#    if hit >= 75:
+ #       ballvelocityx += 2.5
+  #      ballvelocityy += 2.5
+   # if hit >= 100:
+#        ballvelocityx += 5
+ #       ballvelocityy += 5
 
     if ((ballx >= base_x and ballx <= base_x + 60) and (bally >= base_y and bally <= base_y+256)) or ((ballx >= base2_x-20 and ballx <= base2_x + 40) and (bally >= base2_y and bally <= base2_y+256)):
         ballvelocityx = -ballvelocityx
@@ -209,16 +228,23 @@ while True:
             raise SystemExit
 
  ############Controls       
-        if pressed[pygame.K_w] and base_y > 40:
-            base_y -= 50
+        if pressed[pygame.K_w] and base_y > 10:
+            base_y -= 1
 
-        if pressed[pygame.K_s] and base_y < 535:
-            base_y += 50
+        if pressed[pygame.K_s] and base_y < 550:
+            base_y += 1
 
-        if pressed[pygame.K_UP] and base2_y > 40:
-            base2_y -= 50
-        if pressed[pygame.K_DOWN] and base2_y < 535:
-            base2_y += 50
+        if twoPlayers:
+            if pressed[pygame.K_UP] and base2_y > 10:
+                base2_y -= 1
+            if pressed[pygame.K_DOWN] and base2_y < 550:
+                base2_y += 1
+        else:
+            #  AI logic
+            if bally < base2_y - 20:
+                base2_y -= 5
+            if bally > base2_y + 120:
+                base2_y += 5
 
     # Do logical updates here.
     # ...
