@@ -242,9 +242,10 @@ while running:
         else:
             #  AI logic
             if bally < base2_y - 20:
-                base2_y -= 5
+                base2_y -= 15
             if bally > base2_y + 120:
-                base2_y += 5
+                base2_y += 15
+            clock.tick(60)  
 
     # Do logical updates here.
     # ...
